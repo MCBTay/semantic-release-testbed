@@ -26,8 +26,23 @@
           "options": {
             "tsConfig": "projects/stupid-lil-library/tsconfig.spec.json"
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/stupid-lil-library/**/*.ts",
+              "projects/stupid-lil-library/**/*.html"
+            ],
+            "eslintConfig": "projects/stupid-lil-library/eslint.config.js"
+          }
         }
       }
     }
+  },
+  "cli": {
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }
