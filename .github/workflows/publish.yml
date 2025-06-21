@@ -18,8 +18,8 @@ jobs:
 
       - name: Authenticate with GitHub npm registry
         run: |
-            echo "registry=https://npm.pkg.github.com/" >> ~/.npmrc
-            echo "always-auth=false" >> ~/.npmrc
+            echo "@MCBTay:registry=https://npm.pkg.github.com/" >> ~/.npmrc
+            echo "@MCBTay:always-auth=false" >> ~/.npmrc
             echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
 
       - name: Publish package to GitHub npm registry
