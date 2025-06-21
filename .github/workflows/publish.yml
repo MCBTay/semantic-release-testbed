@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build, Lint, and Test
-    uses: build.yml@main
+    uses: semantic-release-testbed/.github/workflows/build.yml@main
 
   publish:
     name:  Publish Package
