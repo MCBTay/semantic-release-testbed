@@ -2,4 +2,4 @@ This is a library that I'm building in order to be able to test out semantic rel
 
 update for commit
 
-cahnges to the read me, really cool feature
+changes to the README, really cool feature
