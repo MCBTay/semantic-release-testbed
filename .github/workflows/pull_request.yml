@@ -1,9 +1,6 @@
-name: Build and Publish Angular Library
+name: Build Angular Library
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
