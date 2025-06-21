@@ -1,5 +1,5 @@
 {
-  "name": "stupid-lil-library",
+  "name": "@MCBTay/stupid-lil-library",
   "version": "0.0.1",
   "publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
