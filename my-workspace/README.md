@@ -3,3 +3,4 @@ This is a library that I'm building in order to be able to test out semantic rel
 update for commit
 
 changes to the README, really cool feature
+my 2nd cool feature
