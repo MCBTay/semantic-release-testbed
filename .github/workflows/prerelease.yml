@@ -38,6 +38,7 @@ jobs:
       - name: Create Prerelease Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ./stupid-lil-library
         run: |
           npx semantic-release --dry-run
 
