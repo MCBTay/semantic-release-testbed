@@ -1,1 +1,58 @@
-node_modules
+# Angular build output
+/dist/
+/tmp/
+/out-tsc/
+
+# Node modules
+/node_modules/
+
+# IDEs and editors
+/.idea/
+/.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Compiled output
+/**/*.js
+/**/*.js.map
+/**/*.d.ts
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Coverage
+/coverage/
+
+# Angular specific
+/.angular/cache/
+
+# Misc
+/.sass-cache/
+/connect.lock
+/coverage/
+/lib-cov/
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+# Test output
+/testem.log
+
+# Compiled library output
+/projects/**/dist/
+/projects/**/out-tsc/
+/projects/**/node_modules/
