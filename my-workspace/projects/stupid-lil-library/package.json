@@ -6,7 +6,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/MCBTay/semantic-release-testbed.git"
+		"url": "git+https://github.com/MCBTay/semantic-release-testbed.git"
 	},
   "peerDependencies": {
     "@angular/common": "^20.0.0",
