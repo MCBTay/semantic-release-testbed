@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "stupid-lil-library": {
+      "projectType": "library",
+      "root": "projects/stupid-lil-library",
+      "sourceRoot": "projects/stupid-lil-library/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/stupid-lil-library/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/stupid-lil-library/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/stupid-lil-library/tsconfig.spec.json"
+          }
+        }
+      }
+    }
+  }
+}
