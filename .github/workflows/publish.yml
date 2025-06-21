@@ -1,0 +1,87 @@
+name: Build and Publish Angular Library
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build, Lint, and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: my-workspace
+
+      - name: Install Chrome
+        id: install-chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: "stable"
+          install-dependencies: true
+          install-chromedriver: true
+
+      - name: Build library
+        run: npm run build
+        working-directory: my-workspace
+
+      - name: Lint library
+        run: npm run lint
+        working-directory: my-workspace
+
+      - name: Run Karma tests
+        run: |
+          export CHROME_BIN=${{ steps.install-chrome.outputs.chrome-path }}
+          npm run test
+        working-directory: my-workspace
+
+      - name: Zip artifact for deployment
+        shell: bash
+        run: zip -r dist.zip dist
+        working-directory: my-workspace
+
+      - name: Publish pipeline artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: my-workspace/dist
+
+  publish:
+    name:  Publish Package
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+
+      - name: Authenticate with GitHub npm registry
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+
+    #   - name: Publish package to GitHub npm registry
+    #     run: npm publish
+    #     working-directory: ./stupid-lil-library
+    #     env:
+    #       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
