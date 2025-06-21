@@ -1,12 +1,12 @@
 {
-  "name": "MCBTay/stupid-lil-library",
+  "name": "stupid-lil-library",
   "version": "0.0.1",
   "publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/MCBTay/semantic-release-testbed.git"
+		"url": "https://github.com/MCBTay/semantic-release-testbed.git"
 	},
   "peerDependencies": {
     "@angular/common": "^20.0.0",
