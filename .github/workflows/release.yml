@@ -1,0 +1,15 @@
+name: Create Release Package
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+        publish-artifact: true
+
+  publish:
+    uses: ./.github/workflows/publish.yml
+    needs:
+      - build
