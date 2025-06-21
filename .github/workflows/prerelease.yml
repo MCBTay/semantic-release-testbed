@@ -34,7 +34,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: my-workspace
+        working-directory: my-workspace/projects/stupid-lil-library
         run: |
           npx semantic-release
 
