@@ -1,32 +1,11 @@
-name: Build and Publish Angular Library
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+name: Publish Package
+on: workflow_call
 
 jobs:
-  build:
-    name: Build, Lint, and Test
-    uses: ./.github/workflows/build.yml
-
   publish:
-    name:  Publish Package
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs:
-      - build
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:

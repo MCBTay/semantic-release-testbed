@@ -1,4 +1,4 @@
-name: Build Angular Library
+name: Pull Request
 
 on:
   pull_request:

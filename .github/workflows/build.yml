@@ -1,5 +1,13 @@
 name: Build, Lint, and Test
-on: workflow_call
+description: An action for building, linting, and testing the library
+on: 
+    workflow_call:
+        inputs:
+            publish-artifact:
+                description: 'A boolean passed from the caller workflow to dictate if we should zip and upload the artifact'
+                default: false
+                required: false
+                type: boolean
 
 jobs:
   build:
@@ -26,11 +34,13 @@ jobs:
         working-directory: my-workspace
 
       - name: Zip artifact for deployment
+        if: ${{ inputs.publish-artifact }}
         shell: bash
         run: zip -r dist.zip dist
         working-directory: my-workspace
 
       - name: Publish pipeline artifact
+        if: ${{ inputs.publish-artifact }}
         uses: actions/upload-artifact@v4
         with:
           name: dist
