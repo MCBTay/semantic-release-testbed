@@ -42,5 +42,7 @@ jobs:
 
       - name: Create PR from beta to main
         if: steps.check_beta.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr create --base main --head beta --title "Promote Beta to Main" --body "Automated PR: This PR promotes the beta branch to main."
