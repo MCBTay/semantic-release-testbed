@@ -1,13 +1,13 @@
 name: Build, Lint, and Test
 description: An action for building, linting, and testing the library
 on: 
-    workflow_call:
-        inputs:
-            publish-artifact:
-                description: 'A boolean passed from the caller workflow to dictate if we should zip and upload the artifact'
-                default: false
-                required: false
-                type: boolean
+  workflow_call:
+    inputs:
+      publish-artifact:
+        description: 'A boolean passed from the caller workflow to dictate if we should zip and upload the artifact'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   build:
