@@ -16,3 +16,31 @@ jobs:
     needs:
       - build
     uses: ./.github/workflows/release.yml
+
+  recreate-beta:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Check if beta exists
+        id: check_beta
+        run: |
+          if git ls-remote --exit-code --heads origin beta; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Recreate beta branch if missing
+        if: steps.check_beta.outputs.exists == 'false'
+        run: |
+          git fetch origin
+          git checkout -b beta origin/main
+          git push origin beta
+
+      - name: Create PR from beta to main
+        if: steps.check_beta.outputs.exists == 'false'
+        run: |
+          gh pr create --base main --head beta --title "Promote Beta to Main" --body "Automated PR: This PR promotes the beta branch to main."
