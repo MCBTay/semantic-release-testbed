@@ -40,5 +40,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: my-workspace
         run: |
-          npx semantic-release --dry-run
+          npx semantic-release
 
