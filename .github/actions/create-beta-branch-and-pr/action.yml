@@ -6,6 +6,7 @@ runs:
   steps:        
     - name: Check if beta exists
       id: check_beta
+      shell: bash
       run: |
         if git ls-remote --exit-code --heads origin beta; then
           echo "exists=true" >> $GITHUB_OUTPUT
@@ -15,6 +16,7 @@ runs:
 
     - name: Create Beta Branch
       if: steps.check_beta.outputs.exists == 'false'
+      shell: bash
       run: |
         git fetch origin
         git checkout -b beta origin/main
@@ -27,5 +29,6 @@ runs:
       if: steps.check_beta.outputs.exists == 'false'
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
       run: |
         gh pr create --base main --head beta --title "Promote Beta to Main" --body "Automated PR: This PR promotes the beta branch to main."

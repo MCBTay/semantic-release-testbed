@@ -16,14 +16,17 @@ runs:
         node-version: 'lts/*'
 
     - name: Install dependencies
+      shell: bash
       run: npm i
       working-directory: my-workspace
 
     - name: Build library
+      shell: bash
       run: npm run build
       working-directory: my-workspace
 
     - name: Lint library
+      shell: bash
       run: npm run lint
       working-directory: my-workspace
 
