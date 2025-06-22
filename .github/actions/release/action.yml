@@ -3,12 +3,7 @@ description: An action for releasing the library to Github
 
 runs:
   using: composite
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
+  steps:        
     - uses: actions/setup-node@v4
       with:
         node-version: 'lts/*'
