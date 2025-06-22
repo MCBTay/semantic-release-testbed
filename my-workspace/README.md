@@ -7,6 +7,9 @@ semantic-release aims to automate all of that for us -- it can determine the ver
 ## Setup
 - Install `semantic-release` as a dev dependency.
 - Create a tag on the master branch indicating the version number -- without one, semantic release will assume we're starting at 1.0.0.
+- Configure GitHub Settings
+  - In General -> Pull Requests: Ensure Merge and Squash are allowed.  Ensure default commit message for both is set to PR title.
+  - In Actions -> General -> Workflow Permissions: Workflows need read and write permissions.  Need to allow Github Actions to create and approve PRs.
 
 ## Two Main Branches Now
 - main
@@ -97,7 +100,3 @@ We've got two different versions of workflows at this point:
 3. PR into beta.  Ensure PR title is correct.  Squash Commit to add one commit for your feature/fix/task to beta branch.  This creates a pre-release package based on your commit message.
 4. PR beta into main.  Merge commit.  This creates a release package based on your commit message.
 5. Once beta has been PR'd into main, beta will be deleted.  Because of this, we have an action to create beta branch and go ahead and create a new PR for beta in to main.
-
-### Github
-- In general -> Pull requests, ensure merge and squash are allowed.  Ensure default commit message for both is set to PR title.
-- actions -> genral -> workflow permissions.  Need read and write permissions.  Also need to allow GHA to create/approve pull requests.
