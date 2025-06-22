@@ -1,12 +1,10 @@
-name: Pull Request
+name: 🚧 Pull Request
+description: A workflow that runs for pull requests to the main or beta branches.
 
 on:
   pull_request:
-    branches:
-      - main
-      - beta
+    branches: [ "main", "beta" ]
 
 jobs:
   build:
-    name: Build, Lint, and Test
     uses: ./.github/workflows/build.yml

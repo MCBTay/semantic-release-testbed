@@ -1,16 +1,14 @@
-name: Create Prerelease Package
+name: 🚀 CI&CD
 
 on:
   push:
-    branches:
-      - main
-      - beta
+    branches: [ "main", "beta" ]
 
 jobs:
   build:
     uses: ./.github/workflows/build.yml
     with:
-        publish-artifact: true
+      publish-artifact: true
 
   release:
     needs:
@@ -21,31 +19,4 @@ jobs:
     if: github.ref == 'refs/heads/main' # Only run this job when pushing to main
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-
-      - name: Check if beta exists
-        id: check_beta
-        run: |
-          if git ls-remote --exit-code --heads origin beta; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create Beta Branch
-        if: steps.check_beta.outputs.exists == 'false'
-        run: |
-          git fetch origin
-          git checkout -b beta origin/main
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit --allow-empty -m "chore: empty commit to enable PR creation"
-          git push origin beta
-
-      - name: Create PR from beta to main
-        if: steps.check_beta.outputs.exists == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr create --base main --head beta --title "Promote Beta to Main" --body "Automated PR: This PR promotes the beta branch to main."
+      - uses: ./.github/workflows/create-beta-branch-and-pr.yml
