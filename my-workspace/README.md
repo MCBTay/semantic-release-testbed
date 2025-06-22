@@ -1,34 +1,10 @@
 This is a library that I'm building in order to be able to test out semantic release.  We need some history on the repo that isn't to convention to simulate adding this to an existing project
 
-update for commit
-
-changes to the README, really cool feature
-my 2nd cool feature
-
-
-some other fix
-fix 1
-fix 2
-
-fix 1
-fix 2
-feature 1
-feature 2
-
-build
-ci
-docs
-feat
-fix
-perf
-refactor
-test
-
-What Problem Are We Trying to Solve?
+## What Problem Are We Trying to Solve?
 Manually managing version numbers sucks.  It requires developers to coordinate and concern themselves with "what's the next version number?".  
 semantic-release aims to automate all of that for us -- it can determine the version number, generate release no tes, and publish the package.
 
-Two Main Branches Now
+## Two Main Branches Now
 - main
 - beta
   - arbitrarily named, it could be named anything.  beta and next are common options.
@@ -41,7 +17,7 @@ Two Main Branches Now
   - doing this gives us the ability to still get a new build for every PR merge for testing purposes, while not actually incrementinng the package version and making a new verison
     available to our consumers.
 
-Commit Messages Are Important Now
+## Commit Messages Are Important Now
 - For us, what this really means is pull request titles.  We have a Github Action workflow now that will validate your PR title.
 - Pull requests need to be set to use the PR title as the default commit message.  This is done in repo settings.
 - Mergers need not modify the default commit message when merging.
@@ -72,10 +48,10 @@ Must be one of the following:
 | **build**    | Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm) |        ❌         |
 | **ci**       | Changes to our CI configuration files and scripts (examples: Github Actions, SauceLabs)             |        ❌         |
 | **docs**     | Documentation only changes                                                                          |        ❌         |
-| **feat**     | A new feature                                                                                       |        ✅         |
-| **fix**      | A bug fix                                                                                           |        ✅         |
-| **perf**     | A code change that improves performance                                                             |        ✅         |
-| **refactor** | A code change that neither fixes a bug nor adds a feature                                           |        ✅         |
+| **feat**     | A new feature                                                                                       |        ✅ (Minor) |
+| **fix**      | A bug fix                                                                                           |        ✅ (Patch) |
+| **perf**     | A code change that improves performance                                                             |        ✅ (Patch) |
+| **refactor** | A code change that neither fixes a bug nor adds a feature                                           |        ❌         |
 | **test**     | Adding missing tests or correcting existing tests                                                   |        ❌         |
 
 
