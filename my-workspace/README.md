@@ -17,3 +17,4 @@ feature 2
 
 build
 ci
+docs
