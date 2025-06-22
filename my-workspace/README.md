@@ -74,3 +74,26 @@ The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is opti
 | `refactor(api):`                                 | ❌             | Fails: no subject                    |
 | `test: `                                         | ❌             | Fails: no subject                    |
 
+### Workflows
+We've got two different versions of workflows at this point:
+
+#### Reusable workflows
+- build.yml - Builds, lints, and tests the library.  Has an optional input to publish the artifact to the workflow run.
+- release.yml - Utilizes semantic-release to release the library to Github
+- create-beta-branch-and-pr.yml - Creates a beta branch and then opens a PR with an empty commit for it into main.  
+- enforce-pr-title.yml - Enforces the PR title based on the convention described above.
+
+#### Event triggered workflows
+- ci.yml - Runs on pushes to main or beta.  Builds the library and then releases it.
+- pull_request.yml - Runns on pull requests to main and beta.  Runs build.yml.
+
+#### Developer Workflow
+1. Create branch from origin/beta.
+2. Do your work.
+3. PR into beta.  Ensure PR title is correct.  Squash Commit to add one commit for your feature/fix/task to beta branch.  This creates a pre-release package based on your commit message.
+4. PR beta into main.  Merge commit.  This creates a release package based on your commit message.
+5. Once beta has been PR'd into main, beta will be deleted.  Because of this, we have an action to create beta branch and go ahead and create a new PR for beta in to main.
+
+### Github
+- In general -> Pull requests, ensure merge and squash are allowed.  Ensure default commit message for both is set to PR title.
+- actions -> genral -> workflow permissions.  Need read and write permissions.  Also need to allow GHA to create/approve pull requests.
