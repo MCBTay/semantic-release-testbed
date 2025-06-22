@@ -1,5 +1,5 @@
 name: 🔨 Build, Lint, and Test
-description: An action for building, linting, and testing the library
+description: A workflow for building, linting, and testing the library
 on: 
   workflow_call:
     inputs:

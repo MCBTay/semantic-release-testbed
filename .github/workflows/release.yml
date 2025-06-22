@@ -1,5 +1,5 @@
 name: 📦 Semantic Release
-description: An action for releasing the library to Github utilizing semantic-release
+description: A workflow for releasing the library to Github utilizing semantic-release
 on: workflow_call
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       packages: write # to be able to publish a package to the GitHub npm registry
       pull-requests: write # to be able to comment on released pull requests
       id-token: write # to enable use of OIDC for npm provenance
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
