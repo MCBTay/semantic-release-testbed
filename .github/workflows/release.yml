@@ -1,5 +1,5 @@
-name: Create Release
-description: An action for releasing the library to Github
+name: 📦 Semantic Release
+description: An action for releasing the library to Github utilizing semantic-release
 on: workflow_call
 
 jobs:
