@@ -14,3 +14,12 @@ fix 1
 fix 2
 feature 1
 feature 2
+
+build
+ci
+docs
+feat
+fix
+perf
+refactor
+test
