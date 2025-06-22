@@ -35,4 +35,4 @@ jobs:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-            gh pr create --base main --head beta --title "Promote Beta to Main" --body "Automated PR: This PR promotes the beta branch to main."
+            gh pr create --base main --head beta --title "chore: Promote Beta to Main" --body "Automated PR: This PR promotes the beta branch to main."
