@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./github/actions/build
+      - uses: ./.github/actions/build
         with:
           publish-artifact: true
 
@@ -24,10 +24,10 @@ jobs:
       pull-requests: write # to be able to comment on released pull requests
       id-token: write # to enable use of OIDC for npm provenance
     steps:
-      - uses: ./github/actions/release
+      - uses: ./.github/actions/release
 
   recreate-beta:
     if: github.ref == 'refs/heads/main' # Only run this job when pushing to main
     runs-on: ubuntu-latest
     steps:
-      - uses: ./github/actions/create-beta-branch-and-pr
+      - uses: ./.github/actions/create-beta-branch-and-pr
