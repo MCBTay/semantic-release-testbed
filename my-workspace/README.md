@@ -6,12 +6,25 @@ semantic-release aims to automate all of that for us -- it can determine the ver
 
 ## Setup
 - Install `semantic-release` as a dev dependency.
-- Create a tag on the master branch indicating the version number -- without one, semantic release will assume we're starting at 1.0.0.
+- Create a tag on the `main` branch indicating the version number -- without one, semantic release will assume we're starting at 1.0.0.
 - Configure GitHub Settings
   - In General -> Pull Requests: Ensure Merge and Squash are allowed.  Ensure default commit message for both is set to PR title.
   - In Actions -> General -> Workflow Permissions: Workflows need read and write permissions.  Need to allow Github Actions to create and approve PRs.
 - Create `.releaserc` in library directory.  In this file, we define the branches that we care about in regards to semantic release.
-  - For our configuration, we care about the default branch (main) and we have the beta branch defined as a pre-release branch.  
+  - For our configuration, we care about the default branch (main) and we have the beta branch defined as a pre-release branch. 
+
+## Github Actions
+We've got two different versions of workflows at this point.  Reusable workflows are workflows that are called by our event triggered workflows.  Below is a brief explanation of each of our workflow files.
+
+### Reusable workflows
+- `build.yml` - Builds, lints, and tests the library.  Has an optional input to publish the artifact to the workflow run.
+- `release.yml` - Utilizes `semantic-release` to release the library to Github (when applicable).
+- `create-beta-branch-and-pr.yml` - Checks for the presence of a `beta` branch.  If `beta` does not exist, creates a `beta` branch and then opens a PR with an empty commit for it into `main`.  Only runs if the workflow is called from the `main` branch.
+
+### Event Triggered Workflows
+- `ci.yml` - Runs on pushes to `main` or `beta`.  Builds the library and then releases it (when applicable).  For pushes to `main`, 
+- `pull_request.yml` - Runs on pull requests to `main` and `beta`.  Uses `build.yml` and `security-scans.yml`.
+- `enforce-pr-title.yml` - Runs on pull requests to `main` and `beta`.  Enforces the PR title based on the convention described above. 
 
 ## What happens when `semantic-release` runs?
 1. Evaluates if all of the necessary tokens to authenticate to various services are present: NPM, Github, etc. 
@@ -26,44 +39,56 @@ semantic-release aims to automate all of that for us -- it can determine the ver
 1. After analyzing commits, there are two potential workflows:
     - If `semantic-release` determined that there should not be a release, then nothing else happens, and the job is marked as passed.
     - If `semantic-release` determined that there should be a release, it begins the release process:
-        - Determines the next release version number.
+        - **Determines the next release version number.**
             - For the main branch
             - For a pre-release branch
-        - Generates release notes.  These will be used on the Github Release that is created as a part of this process.  Uses the commit message types (and scopes) to organize the release notes.
-        - Creates git tag with the new version number.
-        - Publishes the NPM package.
-            - For the main branch
-            - For a pre-release branch
-        - Creates a Github Release.
-            - For the main branch
-            - For a pre-release branch
-        - Enriches pull requests and issues.  
-            - Will add labels to pull requests to indicate which distribution channel that work was released on.  For example, will add a label of `released` for a pull request released on the main branch and a label of `released on @beta` for a pull request released on the beta branch.  A pull request that has been released on both (like most ultimately should be) will end up with both labels.
+        - **Generates release notes.**
+            - These will be used on the Github Release that is created as a part of this process.  Uses the commit message types (and scopes) to organize the release notes.
+        - **Creates git tag.**
+          - These tags can be used to create release branches from if needed.  We may find ourselves in a future where we need to support multiple versions of Angular.  By tagging the repo with every release, we can easily create a maintenance branch for a particular version if we needed to simultaneously support Angular 19 and Angular 20, for example.
+        - **Publishes the NPM package.**
+            - Regardless of branch, the package will be published using the version number determined above.
+            - For the `main` branch, it will publish the package with the `latest` tag.  
+                - Consumers of the library will be able to access this release normally by using `npm i package`.
+            - For a pre-release branch, it will be published with the appropriate tag (`beta` in our usecase).  
+                - Consumers of the library can install this version by specifying `npm i package@beta` or with a specific version number `npm i package@2.0.0-beta.2`.  As we work on the `beta` branch, it will increment the number after the tag.
+        - **Creates a Github Release.**
+            - Regardless of branch, the release will be published with the generated changelog.
+            - Regardless of branch, the release will use the git tag created above.
+            - For the `main` branch, the release will be marked as `latest`.
+            - For a pre-release branch, the release will be marked as `pre-release`.
+        - **Enriches pull requests and issues.**
+            - Will add labels to pull requests to indicate which distribution channel that work was released on.  For example, will add a label of `released` for a pull request released on the `main` branch and a label of `released on @beta` for a pull request released on the `beta` branch.  A pull request that has been released on both (like most ultimately should be) will end up with both labels.
             - Will add comments to pull requests to indicate when it has been included in a release and what version it was included in.
+            - Will add comments and labels to Github Issues as well that are mentioned in the release notes.  We don't use Github Issues so this hasn't been tested in our workflow much.
+        - If all of the above completes successfully, the job is marked as passed.
+
+## Pull Requests
+The way we use pull requests will need to change a little bit in order to integrate `semantic-release` into our workflow.
+
+### Multiple Long Running Branches
+Traditionally we've only had a single long running branch -- `main`/`master` or the default branch.  In order for us to be able to generate builds as each piece of work that gets merged, but not necessarily update the public package each time, we'll need to maintain multiple branches.
+
+- `main`
+    - This is our default branch.
+    - We will regularly merge `beta` into `main` to create releases.  This may be done on a sprint interval or completely ad-hoc.
+        - Generally speaking, we should try to wait until we have features `completed` before we merge `beta` into `main`.  The whole point of this is to prevent public updates of the package from happening all the time while allowing us to still generate packages that we can use during development.
+- `beta`
+    - This has been arbitrarily named.  It could be named whatever we like.  `beta` and `next` are common choices.
+    - We can think of `beta` as the branch we want to open our PRs against.  Of course there are always exceptions, but as a rule of thumb we want to create our local branches from `origin/beta` and open our pull requests into `beta`.
+
+There's also nothing saying we can't have multiple of these.  
+
+### Creating a Pull Request
+For the most part, creating a pull request is largely the same as what we've always done. 
+
+#### PR Titles Are Important and Enforced Now
+`semantic-release` depends entirely on commit messages in order to derive when and what to create.  Since our long running branches are protected by branch protection rules and cannot be committed to directly, what this ultimately means to us is that we need to be stringent about our pull request titles.  The format that we will be following and that `semantic-release` depends on are the [Angular Commit Message Conventions](https://github.com/angular/angular/blob/main/contributing-docs/commit-message-guidelines.md).
+
+Github settings have been updated such that default merge/squash commit messages are the PR titles.  By doing this, we can validate our pull request title with a Github Action to ensure the proper format.  Then, when a developer goes to merge the PR, whether squash or merge, the commit will default to the PR title which will be well formed.
 
 
-
-
-## Two Main Branches Now
-- main
-- beta
-  - arbitrarily named, it could be named anything.  beta and next are common options.
-  - think of beta as our nnew working branch
-  - when we're working in beta merging pull requests in, a pre-release will be created.  
-    - the version number of the prerelease will be determined by semantic-release based onthe commit mesages (pr titles)
-    - it will publish a pre-release to github releases
-    - it will publish a release to the NPM registry that can be installed by using @beta.  it will not be marked as the latest release.
-    - v1.3.0-beta.1, v1.3.0-beta.2, v1.3.0-beta.3, etc
-  - doing this gives us the ability to still get a new build for every PR merge for testing purposes, while not actually incrementinng the package version and making a new verison
-    available to our consumers.
-
-## Commit Messages Are Important Now
-- For us, what this really means is pull request titles.  We have a Github Action workflow now that will validate your PR title.
-- Pull requests need to be set to use the PR title as the default commit message.  This is done in repo settings.
-- Mergers need not modify the default commit message when merging.
-- For validation, we enforce that you're using one of the [Angular Commit Convention](https://github.com/angular/angular/blob/main/contributing-docs/commit-message-guidelines.md) types and allow you to optionally provide a scope.  Failure to do so will fail this workflow and prevent merging.  We also check to see if you have a JIRA ticket in the title in the format of [JIRA-123].  This won't fail the workflow but will be a warning.
-
-## Format
+##### PR Title Format
 ```
 <type>(<scope>): [JIRA-####] <short summary>
   │       │           │             │
@@ -77,55 +102,61 @@ semantic-release aims to automate all of that for us -- it can determine the ver
   └─⫸ Commit Type: feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert
 ```
 
-semantic-release uses commit messages to know what the next version number should be, or if there should be one at all.
+##### `<type>`
+`<type>` is required and is the primary driver in how `semantic-release` determines what the next version number should be.  `<type>` is expected to be one of the following:
 
-### Type
+| Type       | Description                                                                                         | Generates Release |
+|------------|-----------------------------------------------------------------------------------------------------|-------------------|
+| `build`    | Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm) |        ❌         |
+| `ci`       | Changes to our CI configuration files and scripts (examples: Github Actions, SauceLabs)             |        ❌         |
+| `docs`     | Documentation only changes                                                                          |        ❌         |
+| `feat`     | A new feature                                                                                       |        ✅ (Minor) |
+| `fix`      | A bug fix                                                                                           |        ✅ (Patch) |
+| `perf`     | A code change that improves performance                                                             |        ✅ (Patch) |
+| `refactor` | A code change that neither fixes a bug nor adds a feature                                           |        ❌         |
+| `test`     | Adding missing tests or correcting existing tests                                                   |        ❌         |
 
-Must be one of the following:
+##### `(scope)`
+`(scope)` is an optional field that we can use in PR titles to help group work items together.  `(scope)` has no bearing on the version number and seems to only be used to group like items in the generated changelog.
 
-| Type         | Description                                                                                         | Generates Release |
-|--------------|-----------------------------------------------------------------------------------------------------|-------------------|
-| **build**    | Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm) |        ❌         |
-| **ci**       | Changes to our CI configuration files and scripts (examples: Github Actions, SauceLabs)             |        ❌         |
-| **docs**     | Documentation only changes                                                                          |        ❌         |
-| **feat**     | A new feature                                                                                       |        ✅ (Minor) |
-| **fix**      | A bug fix                                                                                           |        ✅ (Patch) |
-| **perf**     | A code change that improves performance                                                             |        ✅ (Patch) |
-| **refactor** | A code change that neither fixes a bug nor adds a feature                                           |        ❌         |
-| **test**     | Adding missing tests or correcting existing tests                                                   |        ❌         |
+##### `[JIRA-####]`
+Ideally each PR title should contain a JIRA number.  Our PR title workflow will check for the existence of a JIRA number in the title.  If it does not exist, the workflow will throw a warning but will still pass.  The thought here being that we will likely not have a JIRA number for every single merge -- like a recurring merge of `beta` into `main`.  
 
+##### `<short summary>`
+Each PR title should have a short summary providing a succinct description of the change.  The Angular team recommends:
+- use the imperative, present tense: "change" not "changed" nor "changes"
+- don't capitalize the first letter
+- no dot (`.`) at the end
 
-The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is optional.
+##### PR Title Examples
+This table shows examples of various pull request tiles and how our PR title validation workflow will evaluate them.
+| PR Title                                         | Status         | Description                  |
+|--------------------------------------------------|----------------|------------------------------|
+| `feat: [JIRA-1234] add new feature`              | ✅             | no warning                   |
+| `fix(core): [JIRA-5678] fix bug in core module`  | ✅             | no warning                   |
+| `docs(readme): [JIRA-9999] update documentation` | ✅             | no warning                   |
+| `chore: [JIRA-1111] update dependencies`         | ✅             | no warning                   |
+| `refactor(api): [JIRA-2222] refactor API layer`  | ✅             | no warning                   |
+| `feat: add new feature`                          | ⚠️             | warning: missing JIRA ticket |
+| `fix(core): fix bug in core module`              | ⚠️             | warning: missing JIRA ticket |
+| `feature: [JIRA-1234] add new feature`           | ❌             | invalid type                 |
+| `fix(core) [JIRA-5678] fix bug in core module`   | ❌             | missing colon                |
+| `docs[readme]: [JIRA-9999] update documentation` | ❌             | invalid scope format         |
+| `chore [JIRA-1111] update dependencies`          | ❌             | missing colon                |
+| `refactor(api):`                                 | ❌             | no subject                   |
+| `test: `                                         | ❌             | no subject                   |
 
-### Examples
-| PR Title                                         | Pass/Fail/Warn | Description                          |
-|--------------------------------------------------|----------------|--------------------------------------|
-| `feat: [JIRA-1234] add new feature`              | ✅             | Passes, no warning                   |
-| `fix(core): [JIRA-5678] fix bug in core module`  | ✅             | Passes, no warning                   |
-| `docs(readme): [JIRA-9999] update documentation` | ✅             | Passes, no warning                   |
-| `chore: [JIRA-1111] update dependencies`         | ✅             | Passes, no warning                   |
-| `refactor(api): [JIRA-2222] refactor API layer`  | ✅             | Passes, no warning                   |
-| `feat: add new feature`                          | ⚠️             | Passes, warning: missing JIRA ticket |
-| `fix(core): fix bug in core module`              | ⚠️             | Passes, warning: missing JIRA ticket |
-| `feature: [JIRA-1234] add new feature`           | ❌             | Fails: invalid type                  |
-| `fix(core) [JIRA-5678] fix bug in core module`   | ❌             | Fails: missing colon                 |
-| `docs[readme]: [JIRA-9999] update documentation` | ❌             | Fails: invalid scope format          |
-| `chore [JIRA-1111] update dependencies`          | ❌             | Fails: missing colon                 |
-| `refactor(api):`                                 | ❌             | Fails: no subject                    |
-| `test: `                                         | ❌             | Fails: no subject                    |
+### Merging a Pull Request
+Traditionally we've squashed every single PR merge into `main`.  We did this typically to keep our `main` history clean.  This is something we'll need to slightly change in order to integrate `semantic-release` into our workflow.
 
-### Workflows
-We've got two different versions of workflows at this point:
+#### Merging a Working Branch Into `beta`
+We'll be merging most of our work into the `beta` branch.  Often times, because we'll be merging our working development branches into `beta`, there will (potentially) be a large number of commits in these branches.  Because of that **we want to squash commits that are merging into `beta` as a rule of thumb**.  This will keep our `beta` branch history clean.  With our convention for pull request titles (and the enforcement of it via Github Actions), all commits onto `beta` should strictly follow the commit convention.  By doing so, `semantic-release` will be able to properly analyze these commits and generate appropriate pre-releases.
 
-#### Reusable workflows
-- build.yml - Builds, lints, and tests the library.  Has an optional input to publish the artifact to the workflow run.
-- release.yml - Utilizes semantic-release to release the library to Github
-- create-beta-branch-and-pr.yml - Creates a beta branch and then opens a PR with an empty commit for it into main.  
-- enforce-pr-title.yml - Enforces the PR title based on the convention described above.
+#### Merging a Working Branch Into `main`
+There may be instances where we'll want to merge a working branch into `main`.  For example, there may be work in flight on `beta` that we aren't ready to merge into `main`, but we need a bug fix to go into `main` before that.  In situations like this, **we want to squash commits that are merging into `main` from a working branch as a rule of thumb**.  By doing this and following our PR title convention, this will ensure `semantic-release` will be able to properly analyze these commits and generate appropriate releases.
 
-#### Event triggered workflows
-- ci.yml - Runs on pushes to main or beta.  Builds the library and then releases it.
-- pull_request.yml - Runns on pull requests to main and beta.  Runs build.yml.
+#### Merging `beta` Into `main`
+Most of the time, we'll be merging `beta` into `main`.  This will be our standard operating flow to include multiple pieces of work into a single package update.  If we have followed our PR title convention, and squashed each merge into the `beta` branch, the `beta` branch will contain properly formatted commit messages.  Because of this, **we want to merge commits into `main` as a rule of thumb**.  By merging these commits, our `main` history contains each of the commits from the `beta` branch and `semantic-release` will be able to properly generate release notes and create the release.
 
 #### Developer Workflow
 1. Create branch from origin/beta.
