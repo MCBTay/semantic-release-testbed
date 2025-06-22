@@ -13,3 +13,4 @@ fix 2
 fix 1
 fix 2
 feature 1
+feature 2

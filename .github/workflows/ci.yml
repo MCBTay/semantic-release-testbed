@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/release.yml
 
   recreate-beta:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' # Only run this job when pushing to main
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -33,11 +33,12 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Recreate beta branch if missing
+      - name: Create Beta Branch
         if: steps.check_beta.outputs.exists == 'false'
         run: |
           git fetch origin
           git checkout -b beta origin/main
+          git commit --allow-empty -m "chore: empty commit to enable PR creation"
           git push origin beta
 
       - name: Create PR from beta to main
