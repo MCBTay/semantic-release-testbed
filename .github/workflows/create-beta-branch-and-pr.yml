@@ -13,10 +13,14 @@ jobs:
         shell: bash
         run: |
             if git ls-remote --exit-code --heads origin beta; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+              echo "exists=true" >> $GITHUB_OUTPUT
             else
-            echo "exists=false" >> $GITHUB_OUTPUT
+              echo "exists=false" >> $GITHUB_OUTPUT
             fi
+
+      - name: Checkout repository
+        if: steps.check_beta.outputs.exists == 'false'
+        uses: actions/checkout@v4
 
       - name: 🔧 Create Beta Branch
         if: steps.check_beta.outputs.exists == 'false'
