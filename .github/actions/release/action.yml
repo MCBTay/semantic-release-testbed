@@ -1,0 +1,22 @@
+name: Create Release 📦
+description: An action for releasing the library to Github
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 'lts/*'
+
+    - name: Create Release 📦
+      env:
+        NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      working-directory: my-workspace/projects/stupid-lil-library
+      run: |
+        npx semantic-release

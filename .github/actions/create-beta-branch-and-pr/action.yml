@@ -1,0 +1,36 @@
+name: Create beta branch and pull request
+description: An action for creating a beta branch and a pull request to main on that branch
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Check if beta exists
+      id: check_beta
+      run: |
+        if git ls-remote --exit-code --heads origin beta; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Beta Branch
+      if: steps.check_beta.outputs.exists == 'false'
+      run: |
+        git fetch origin
+        git checkout -b beta origin/main
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git commit --allow-empty -m "chore: empty commit to enable PR creation"
+        git push origin beta
+
+    - name: Create PR from beta to main
+      if: steps.check_beta.outputs.exists == 'false'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr create --base main --head beta --title "Promote Beta to Main" --body "Automated PR: This PR promotes the beta branch to main."
