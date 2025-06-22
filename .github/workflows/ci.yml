@@ -1,10 +1,8 @@
-name: Create Prerelease Package
+name: 🚀 CI&CD
 
 on:
   push:
-    branches:
-      - main
-      - beta
+    branches: [ "main", "beta" ]
 
 jobs:
   build:
