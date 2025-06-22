@@ -1,0 +1,47 @@
+name: Build, Lint, and Test
+description: An action for building, linting, and testing the library
+on: 
+  workflow_call:
+    inputs:
+      publish-artifact:
+        description: 'A boolean passed from the caller workflow to dictate if we should zip and upload the artifact'
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  build:
+    name: Build, Lint, and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: npm i
+        working-directory: my-workspace
+
+      - name: Build library
+        run: npm run build
+        working-directory: my-workspace
+
+      - name: Lint library
+        run: npm run lint
+        working-directory: my-workspace
+
+      - name: Zip artifact for deployment
+        if: ${{ inputs.publish-artifact }}
+        run: zip -r dist.zip dist
+        working-directory: my-workspace
+
+      - name: Publish pipeline artifact
+        if: ${{ inputs.publish-artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: my-workspace/dist
