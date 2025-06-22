@@ -58,19 +58,19 @@ Must be one of the following:
 The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is optional.
 
 ### Examples
-| PR Title                                          | Pass/Fail/Warn |  Description                         |                                                     |
-|---------------------------------------------------|----------------|--------------------------------------|
-| `feat: [JIRA-1234] add new feature`               |       ✅      | Passes, no warning                   |
-| `fix(core): [JIRA-5678] fix bug in core module`   |       ✅      | Passes, no warning                   |
-| `docs(readme): [JIRA-9999] update documentation`  |       ✅      | Passes, no warning                   |
-| `chore: [JIRA-1111] update dependencies`          |       ✅      | Passes, no warning                   |
-| `refactor(api): [JIRA-2222] refactor API layer`   |       ✅      | Passes, no warning                   |
-| `feat: add new feature`                           |       ⚠️      | Passes, warning: missing JIRA ticket |
-| `fix(core): fix bug in core module`               |       ⚠️      | Passes, warning: missing JIRA ticket |
-| `feature: [JIRA-1234] add new feature`            |       ❌      | Fails: invalid type                  |
-| `fix(core) [JIRA-5678] fix bug in core module`    |       ❌      | Fails: missing colon                 |
-| `docs[readme]: [JIRA-9999] update documentation`  |       ❌      | Fails: invalid scope format          |
-| `chore [JIRA-1111] update dependencies`           |       ❌      | Fails: missing colon                 |
-| `refactor(api):`                                  |       ❌      | Fails: no subject                    |
-| `test: `                                          |       ❌      | Fails: no subject                    |
+| PR Title                                         | Pass/Fail/Warn | Description                          |
+|--------------------------------------------------|----------------|--------------------------------------|
+| `feat: [JIRA-1234] add new feature`              | ✅             | Passes, no warning                   |
+| `fix(core): [JIRA-5678] fix bug in core module`  | ✅             | Passes, no warning                   |
+| `docs(readme): [JIRA-9999] update documentation` | ✅             | Passes, no warning                   |
+| `chore: [JIRA-1111] update dependencies`         | ✅             | Passes, no warning                   |
+| `refactor(api): [JIRA-2222] refactor API layer`  | ✅             | Passes, no warning                   |
+| `feat: add new feature`                          | ⚠️             | Passes, warning: missing JIRA ticket |
+| `fix(core): fix bug in core module`              | ⚠️             | Passes, warning: missing JIRA ticket |
+| `feature: [JIRA-1234] add new feature`           | ❌             | Fails: invalid type                  |
+| `fix(core) [JIRA-5678] fix bug in core module`   | ❌             | Fails: missing colon                 |
+| `docs[readme]: [JIRA-9999] update documentation` | ❌             | Fails: invalid scope format          |
+| `chore [JIRA-1111] update dependencies`          | ❌             | Fails: missing colon                 |
+| `refactor(api):`                                 | ❌             | Fails: no subject                    |
+| `test: `                                         | ❌             | Fails: no subject                    |
 
