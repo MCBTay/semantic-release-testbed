@@ -19,3 +19,4 @@ build
 ci
 docs
 feat
+fix
