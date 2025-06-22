@@ -4,6 +4,10 @@ This is a library that I'm building in order to be able to test out semantic rel
 Manually managing version numbers sucks.  It requires developers to coordinate and concern themselves with "what's the next version number?".  
 semantic-release aims to automate all of that for us -- it can determine the version number, generate release no tes, and publish the package.
 
+## Setup
+- Install `semantic-release` as a dev dependency.
+- Create a tag on the master branch indicating the version number -- without one, semantic release will assume we're starting at 1.0.0.
+
 ## Two Main Branches Now
 - main
 - beta
