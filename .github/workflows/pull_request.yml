@@ -1,4 +1,4 @@
-name: :construction: Pull Request
+name: 🚧 Pull Request
 description: A workflow that runs for pull requests to the main or beta branches.
 
 on:
