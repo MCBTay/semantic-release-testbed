@@ -2,7 +2,7 @@ This is a library that I'm building in order to be able to test out semantic rel
 
 ## What Problem Are We Trying to Solve?
 Manually managing version numbers sucks.  It requires developers to coordinate and concern themselves with "what's the next version number?".  
-semantic-release aims to automate all of that for us -- it can determine the version number, generate release no tes, and publish the package.
+semantic-release aims to automate all of that for us -- it can determine the version number, generate release notes, and publish the package.
 
 ## Setup
 - Install `semantic-release` as a dev dependency.
@@ -10,6 +10,39 @@ semantic-release aims to automate all of that for us -- it can determine the ver
 - Configure GitHub Settings
   - In General -> Pull Requests: Ensure Merge and Squash are allowed.  Ensure default commit message for both is set to PR title.
   - In Actions -> General -> Workflow Permissions: Workflows need read and write permissions.  Need to allow Github Actions to create and approve PRs.
+- Create `.releaserc` in library directory.  In this file, we define the branches that we care about in regards to semantic release.
+  - For our configuration, we care about the default branch (main) and we have the beta branch defined as a pre-release branch.  
+
+## What happens when `semantic-release` runs?
+1. Evaluates if all of the necessary tokens to authenticate to various services are present: NPM, Github, etc. 
+1. Searches for the most recent version tag on the branch.  `semantic-release` will use this to figure out what the "next" version number should be.
+1. Analyzes commits.  It will go over each new commit on the branch since the last tag it found and try to determine if a release is necessary, and if so, what type of release.  This is the reason that our commit messages are suddenly significant.
+    - If commit message is of type `build`, `ci`, `docs`, `refactor`, or `test` -- `semantic-release` will determine that no release is necessary and will not create a release or package.
+    - If commit message is of type `fix` or `perf` -- `semantic-release` will determine that a release is necessary and that it will be a patch release.  
+        - For example, if the current version is `v1.2.3` and we run a release with `fix` or `perf` commits, it will increment the version number to `v1.2.4`.
+    - If commit message is of type `feat` -- `semantic-release` will determine that a release is necessary and that it will be a minor release.
+        - For example, if the current version is `v1.2.3` and we run a release with `feat` commits, it will increment the version number to `v1.3.0`.
+    - *Document Breaking Change*
+1. After analyzing commits, there are two potential workflows:
+    - If `semantic-release` determined that there should not be a release, then nothing else happens, and the job is marked as passed.
+    - If `semantic-release` determined that there should be a release, it begins the release process:
+        - Determines the next release version number.
+            - For the main branch
+            - For a pre-release branch
+        - Generates release notes.  These will be used on the Github Release that is created as a part of this process.  Uses the commit message types (and scopes) to organize the release notes.
+        - Creates git tag with the new version number.
+        - Publishes the NPM package.
+            - For the main branch
+            - For a pre-release branch
+        - Creates a Github Release.
+            - For the main branch
+            - For a pre-release branch
+        - Enriches pull requests and issues.  
+            - Will add labels to pull requests to indicate which distribution channel that work was released on.  For example, will add a label of `released` for a pull request released on the main branch and a label of `released on @beta` for a pull request released on the beta branch.  A pull request that has been released on both (like most ultimately should be) will end up with both labels.
+            - Will add comments to pull requests to indicate when it has been included in a release and what version it was included in.
+
+
+
 
 ## Two Main Branches Now
 - main
