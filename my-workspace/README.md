@@ -22,3 +22,4 @@ feat
 fix
 perf
 refactor
+test
