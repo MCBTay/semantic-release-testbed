@@ -6,17 +6,17 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/build
+    uses: ./.github/workflows/build.yml
     with:
       publish-artifact: true
 
   release:
     needs:
       - build
-    uses: ./.github/workflows/release
+    uses: ./.github/workflows/release.yml
 
   recreate-beta:
     if: github.ref == 'refs/heads/main' # Only run this job when pushing to main
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/create-beta-branch-and-pr
+      - uses: ./.github/workflows/create-beta-branch-and-pr.yml
