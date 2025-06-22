@@ -38,6 +38,8 @@ jobs:
         run: |
           git fetch origin
           git checkout -b beta origin/main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit --allow-empty -m "chore: empty commit to enable PR creation"
           git push origin beta
 
