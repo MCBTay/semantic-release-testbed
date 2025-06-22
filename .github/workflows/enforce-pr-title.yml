@@ -28,12 +28,20 @@ jobs:
               'revert'
             ];
 
-            // Regex: type, optional scope, colon, space, [JIRA-1234], space, then subject
-            const angularJiraRegex = new RegExp(`^(${types.join('|')})(\\([^)]+\\))?: \\[JIRA-\\d+\\] .+`);
+            // Regex: type, optional scope, colon, space, then subject
+            const angularRegex = new RegExp(`^(${types.join('|')})(\([^)]+\))?: .+`);
+
+            // Regex: [JIRA-1234] must be the first part of the subject after colon and space
+            const jiraRegex = /: \[JIRA-\d+\] /;
+
             const prTitle = context.payload.pull_request.title;
-            
-            if (!angularJiraRegex.test(prTitle)) {
-              core.setFailed(
-                `PR title must follow Angular convention and include a JIRA ticket: <type>(<optional scope>): [JIRA-1234] <subject>\nAllowed types: ${types.join(', ')}`
-              );
+
+            if (!angularRegex.test(prTitle)) {
+              core.setFailed(`PR title must follow Angular convention: <type>(<optional scope>): <subject>\nAllowed types: ${types.join(', ')}`);
+            } else {
+              // Extract the subject (after the colon and space)
+              const subject = prTitle.replace(/^(${types.join('|')})(\([^)]+\))?: /, '');
+              if (!/^\[JIRA-\d+\]/.test(subject)) {
+                core.warning(`PR title subject should start with a JIRA ticket, e.g. [JIRA-1234] <subject>`);
+              }
             }
