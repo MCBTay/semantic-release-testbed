@@ -7,11 +7,13 @@ semantic-release aims to automate all of that for us -- it can determine the ver
 ## Setup
 - Install `semantic-release` as a dev dependency.
 - Create a tag on the `main` branch indicating the version number -- without one, semantic release will assume we're starting at 1.0.0.
+    - We will manually release `v19.0.0` and then introduce `semantic-release`.  We will create a release by our standard process (bumping the package number in `package.json` and merging it to `main`).  Then we can introduce `semantic-release` and the workflows necessary to automate all of this.
+    - (!) We should do this at a time where we don't have much work in flight, to limit friction (!)
 - Configure GitHub Settings
   - In General -> Pull Requests: Ensure Merge and Squash are allowed.  Ensure default commit message for both is set to PR title.
   - In Actions -> General -> Workflow Permissions: Workflows need read and write permissions.  Need to allow Github Actions to create and approve PRs.
 - Create `.releaserc` in library directory.  In this file, we define the branches that we care about in regards to semantic release.
-  - For our configuration, we care about the default branch (main) and we have the beta branch defined as a pre-release branch. 
+  - For our configuration, we care about the default branch (`main`) and we have the `beta` branch defined as a pre-release branch. 
 
 ## Github Actions
 We've got two different versions of workflows at this point.  Reusable workflows are workflows that are called by our event triggered workflows.  Below is a brief explanation of each of our workflow files.
@@ -33,9 +35,11 @@ We've got two different versions of workflows at this point.  Reusable workflows
     - If commit message is of type `build`, `ci`, `docs`, `refactor`, or `test` -- `semantic-release` will determine that no release is necessary and will not create a release or package.
     - If commit message is of type `fix` or `perf` -- `semantic-release` will determine that a release is necessary and that it will be a patch release.  
         - For example, if the current version is `v1.2.3` and we run a release with `fix` or `perf` commits, it will increment the version number to `v1.2.4`.
+        - Multiple of these commits in a single release **will not** continue to iterate the patch version.
     - If commit message is of type `feat` -- `semantic-release` will determine that a release is necessary and that it will be a minor release.
         - For example, if the current version is `v1.2.3` and we run a release with `feat` commits, it will increment the version number to `v1.3.0`.
-    - *Document Breaking Change*
+        - Multiple of these commits in a single release **will not** continue to iterate the minor version.
+    - In order to stay with the versioning scheme of the packages around us, we will be locking our major version to match the major version of Angular.  At the time of writing, that would be `v19.x.x`.  This is a bit of a deviation from traditional semantic versioning, but the only time we should instruct `semantic-release` that we've introduced a breaking change is when we're upgrading versions of Angular.  When we need to do that, we need to include the following in the commit body: `BREAKING CHANGE: <summary>`.  The format is stringent.  This will cause `semantic-release` to iterate the `major` version.  For example, `v19.x.x` -> `v20.x.x`.
 1. After analyzing commits, there are two potential workflows:
     - If `semantic-release` determined that there should not be a release, then nothing else happens, and the job is marked as passed.
     - If `semantic-release` determined that there should be a release, it begins the release process:
@@ -154,6 +158,7 @@ We'll be merging most of our work into the `beta` branch.  Often times, because 
 
 #### Merging a Working Branch Into `main`
 There may be instances where we'll want to merge a working branch into `main`.  For example, there may be work in flight on `beta` that we aren't ready to merge into `main`, but we need a bug fix to go into `main` before that.  In situations like this, **we want to squash commits that are merging into `main` from a working branch as a rule of thumb**.  By doing this and following our PR title convention, this will ensure `semantic-release` will be able to properly analyze these commits and generate appropriate releases.
+(!) NOTE: Merging a working branch into main will put the `beta` branch out of date.  Because of this, we should enforce that anytime this needs to happen that `beta` is merged from `origin/main` after. (!)
 
 #### Merging `beta` Into `main`
 Most of the time, we'll be merging `beta` into `main`.  This will be our standard operating flow to include multiple pieces of work into a single package update.  If we have followed our PR title convention, and squashed each merge into the `beta` branch, the `beta` branch will contain properly formatted commit messages.  Because of this, **we want to merge commits into `main` as a rule of thumb**.  By merging these commits, our `main` history contains each of the commits from the `beta` branch and `semantic-release` will be able to properly generate release notes and create the release.
