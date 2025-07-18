@@ -31,8 +31,13 @@ jobs:
       - run: npm run lint
         working-directory: my-workspace
 
-      - run: npx semantic-release --dry-run
-        working-directory: my-workspace
+      - name: Create Release
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: my-workspace/projects/stupid-lil-library
+        run: |
+          npx semantic-release --dry-run
 
       - if: ${{ inputs.publish-artifact }}
         run: zip -r dist.zip dist
