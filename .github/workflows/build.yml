@@ -37,7 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: my-workspace/projects/stupid-lil-library
         run: |
-          npx semantic-release --dry-run
+          npx semantic-release --dry-run --no-ci
 
       - if: ${{ inputs.publish-artifact }}
         run: zip -r dist.zip dist
