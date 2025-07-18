@@ -6,5 +6,8 @@ on:
     branches: [ "main", "beta" ]
 
 jobs:
+  check-title:
+    uses: ./.github/workflows/enforce-pr-title.yml
+
   build:
     uses: ./.github/workflows/build.yml

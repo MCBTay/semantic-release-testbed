@@ -1,13 +1,12 @@
 name: 📋 Check PR Title
 description: Enforces a PR title format for pull requests to main or beta.
-
-on:
-  pull_request:
-    branches: [ "main", "beta" ]
+on: workflow_call
 
 jobs:
   check-title:
+    name: 📋 Check PR Title
     runs-on: ubuntu-latest
+    
     steps:
       - name: 📋 Check PR title
         uses: actions/github-script@v7
